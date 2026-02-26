@@ -12,8 +12,8 @@ using QuanLyBanHang.Data;
 namespace QuanLyBanHang.Migrations
 {
     [DbContext(typeof(QLBHDbContext))]
-    [Migration("20260201135227_CapNhatCSDL")]
-    partial class CapNhatCSDL
+    [Migration("20260224124747_KhoiTao")]
+    partial class KhoiTao
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -200,8 +200,9 @@ namespace QuanLyBanHang.Migrations
                     b.Property<int>("SoLuong")
                         .HasColumnType("int");
 
-                    b.Property<int>("TenSanPham")
-                        .HasColumnType("int");
+                    b.Property<string>("TenSanPham")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ID");
 
@@ -252,7 +253,7 @@ namespace QuanLyBanHang.Migrations
 
             modelBuilder.Entity("QuanLyBanHang.Data.SanPham", b =>
                 {
-                    b.HasOne("QuanLyBanHang.Data.HangSanXuat", "HoangSanXuat")
+                    b.HasOne("QuanLyBanHang.Data.HangSanXuat", "HangSanXuat")
                         .WithMany("SanPham")
                         .HasForeignKey("HangSanXuatID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -264,7 +265,7 @@ namespace QuanLyBanHang.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("HoangSanXuat");
+                    b.Navigation("HangSanXuat");
 
                     b.Navigation("LoaiSanPham");
                 });

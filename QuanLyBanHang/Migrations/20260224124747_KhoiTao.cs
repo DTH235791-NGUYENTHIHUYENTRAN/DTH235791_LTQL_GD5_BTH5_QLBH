@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace QuanLyBanHang.Migrations
 {
     /// <inheritdoc />
-    public partial class KhoiTaoCSDL : Migration
+    public partial class KhoiTao : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -53,7 +53,7 @@ namespace QuanLyBanHang.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "NhanViens",
+                name: "NhanVien",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
@@ -67,7 +67,7 @@ namespace QuanLyBanHang.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_NhanViens", x => x.ID);
+                    table.PrimaryKey("PK_NhanVien", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -78,7 +78,7 @@ namespace QuanLyBanHang.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     HangSanXuatID = table.Column<int>(type: "int", nullable: false),
                     LoaiSanPhamID = table.Column<int>(type: "int", nullable: false),
-                    TenSanPham = table.Column<int>(type: "int", nullable: false),
+                    TenSanPham = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DonGia = table.Column<int>(type: "int", nullable: false),
                     SoLuong = table.Column<int>(type: "int", nullable: false),
                     HinhAnh = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -122,9 +122,9 @@ namespace QuanLyBanHang.Migrations
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_HoaDon_NhanViens_NhanVienID",
+                        name: "FK_HoaDon_NhanVien_NhanVienID",
                         column: x => x.NhanVienID,
-                        principalTable: "NhanViens",
+                        principalTable: "NhanVien",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -204,7 +204,7 @@ namespace QuanLyBanHang.Migrations
                 name: "KhachHang");
 
             migrationBuilder.DropTable(
-                name: "NhanViens");
+                name: "NhanVien");
 
             migrationBuilder.DropTable(
                 name: "HangSanXuat");
