@@ -8,11 +8,17 @@ namespace QuanLyBanHang.Data
 {
     public class HoaDon_ChiTiet
     {
-        public int ID { get; set; } 
+        public int ID { get; set; }
         public int HoaDonID { get; set; }
         public int SanPhamID { get; set; }
-        public short SoLuongBan {  get; set; }
+        public int SoLuongBan { get; set; }
         public int DonGiaBan { get; set; }
+
+        // Dùng để lấy tên từ object SanPham
+        public string TenSanPham => SanPham?.TenSanPham;
+
+        // Tính thành tiền tự động
+        public decimal ThanhTien => SoLuongBan * DonGiaBan;
 
         public virtual HoaDon HoaDon { get; set; } = null!;
         public virtual SanPham SanPham { get; set; } = null!;

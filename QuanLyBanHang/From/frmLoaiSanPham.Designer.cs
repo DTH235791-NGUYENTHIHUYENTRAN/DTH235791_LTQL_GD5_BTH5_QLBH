@@ -49,11 +49,11 @@
             // groupBox1
             // 
             groupBox1.Controls.Add(dataGridView);
-            groupBox1.Location = new Point(-3, 189);
-            groupBox1.Margin = new Padding(4, 5, 4, 5);
+            groupBox1.Location = new Point(-2, 151);
+            groupBox1.Margin = new Padding(3, 4, 3, 4);
             groupBox1.Name = "groupBox1";
-            groupBox1.Padding = new Padding(4, 5, 4, 5);
-            groupBox1.Size = new Size(834, 588);
+            groupBox1.Padding = new Padding(3, 4, 3, 4);
+            groupBox1.Size = new Size(667, 470);
             groupBox1.TabIndex = 0;
             groupBox1.TabStop = false;
             groupBox1.Text = "Danh sách loại sản phẩm";
@@ -67,13 +67,13 @@
             dataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridView.Columns.AddRange(new DataGridViewColumn[] { ID, TenLoai });
             dataGridView.Dock = DockStyle.Fill;
-            dataGridView.Location = new Point(4, 29);
-            dataGridView.Margin = new Padding(4, 5, 4, 5);
+            dataGridView.Location = new Point(3, 24);
+            dataGridView.Margin = new Padding(3, 4, 3, 4);
             dataGridView.MultiSelect = false;
             dataGridView.Name = "dataGridView";
             dataGridView.RowHeadersWidth = 62;
             dataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridView.Size = new Size(826, 554);
+            dataGridView.Size = new Size(661, 442);
             dataGridView.TabIndex = 0;
             // 
             // ID
@@ -100,21 +100,21 @@
             groupBox2.Controls.Add(btnThem);
             groupBox2.Controls.Add(label1);
             groupBox2.Controls.Add(txtTenLoai);
-            groupBox2.Location = new Point(-9, 5);
-            groupBox2.Margin = new Padding(4, 5, 4, 5);
+            groupBox2.Location = new Point(-7, 4);
+            groupBox2.Margin = new Padding(3, 4, 3, 4);
             groupBox2.Name = "groupBox2";
-            groupBox2.Padding = new Padding(4, 5, 4, 5);
-            groupBox2.Size = new Size(851, 181);
+            groupBox2.Padding = new Padding(3, 4, 3, 4);
+            groupBox2.Size = new Size(681, 145);
             groupBox2.TabIndex = 1;
             groupBox2.TabStop = false;
             groupBox2.Text = "Thông tin loại sản phẩm";
             // 
             // btnThoat
             // 
-            btnThoat.Location = new Point(705, 115);
-            btnThoat.Margin = new Padding(4, 5, 4, 5);
+            btnThoat.Location = new Point(564, 92);
+            btnThoat.Margin = new Padding(3, 4, 3, 4);
             btnThoat.Name = "btnThoat";
-            btnThoat.Size = new Size(86, 38);
+            btnThoat.Size = new Size(69, 30);
             btnThoat.TabIndex = 2;
             btnThoat.Text = "Thoát";
             btnThoat.UseVisualStyleBackColor = true;
@@ -122,10 +122,10 @@
             // 
             // btnHuyBo
             // 
-            btnHuyBo.Location = new Point(611, 115);
-            btnHuyBo.Margin = new Padding(4, 5, 4, 5);
+            btnHuyBo.Location = new Point(489, 92);
+            btnHuyBo.Margin = new Padding(3, 4, 3, 4);
             btnHuyBo.Name = "btnHuyBo";
-            btnHuyBo.Size = new Size(86, 38);
+            btnHuyBo.Size = new Size(69, 30);
             btnHuyBo.TabIndex = 2;
             btnHuyBo.Text = "Hủy bỏ";
             btnHuyBo.UseVisualStyleBackColor = true;
@@ -133,10 +133,10 @@
             // 
             // btnLuu
             // 
-            btnLuu.Location = new Point(516, 115);
-            btnLuu.Margin = new Padding(4, 5, 4, 5);
+            btnLuu.Location = new Point(413, 92);
+            btnLuu.Margin = new Padding(3, 4, 3, 4);
             btnLuu.Name = "btnLuu";
-            btnLuu.Size = new Size(86, 38);
+            btnLuu.Size = new Size(69, 30);
             btnLuu.TabIndex = 2;
             btnLuu.Text = "Lưu";
             btnLuu.UseVisualStyleBackColor = true;
@@ -144,10 +144,10 @@
             // 
             // btnXoa
             // 
-            btnXoa.Location = new Point(422, 115);
-            btnXoa.Margin = new Padding(4, 5, 4, 5);
+            btnXoa.Location = new Point(338, 92);
+            btnXoa.Margin = new Padding(3, 4, 3, 4);
             btnXoa.Name = "btnXoa";
-            btnXoa.Size = new Size(86, 38);
+            btnXoa.Size = new Size(69, 30);
             btnXoa.TabIndex = 2;
             btnXoa.Text = "Xóa";
             btnXoa.UseVisualStyleBackColor = true;
@@ -155,10 +155,10 @@
             // 
             // btnSua
             // 
-            btnSua.Location = new Point(328, 115);
-            btnSua.Margin = new Padding(4, 5, 4, 5);
+            btnSua.Location = new Point(262, 92);
+            btnSua.Margin = new Padding(3, 4, 3, 4);
             btnSua.Name = "btnSua";
-            btnSua.Size = new Size(86, 38);
+            btnSua.Size = new Size(69, 30);
             btnSua.TabIndex = 2;
             btnSua.Text = "Sửa";
             btnSua.UseVisualStyleBackColor = true;
@@ -166,10 +166,10 @@
             // 
             // btnThem
             // 
-            btnThem.Location = new Point(233, 115);
-            btnThem.Margin = new Padding(4, 5, 4, 5);
+            btnThem.Location = new Point(186, 92);
+            btnThem.Margin = new Padding(3, 4, 3, 4);
             btnThem.Name = "btnThem";
-            btnThem.Size = new Size(86, 38);
+            btnThem.Size = new Size(69, 30);
             btnThem.TabIndex = 2;
             btnThem.Text = "Thêm";
             btnThem.UseVisualStyleBackColor = true;
@@ -178,29 +178,28 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(51, 70);
-            label1.Margin = new Padding(4, 0, 4, 0);
+            label1.Location = new Point(41, 56);
             label1.Name = "label1";
-            label1.Size = new Size(181, 25);
+            label1.Size = new Size(152, 20);
             label1.TabIndex = 1;
             label1.Text = "Tên loại sản phẩm (*):";
             // 
             // txtTenLoai
             // 
-            txtTenLoai.Location = new Point(233, 65);
-            txtTenLoai.Margin = new Padding(4, 5, 4, 5);
+            txtTenLoai.Location = new Point(186, 52);
+            txtTenLoai.Margin = new Padding(3, 4, 3, 4);
             txtTenLoai.Name = "txtTenLoai";
-            txtTenLoai.Size = new Size(560, 31);
+            txtTenLoai.Size = new Size(449, 27);
             txtTenLoai.TabIndex = 0;
             // 
             // frmLoaiSanPham
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(833, 764);
+            ClientSize = new Size(668, 611);
             Controls.Add(groupBox2);
             Controls.Add(groupBox1);
-            Margin = new Padding(4, 5, 4, 5);
+            Margin = new Padding(3, 4, 3, 4);
             Name = "frmLoaiSanPham";
             Text = "Loại Sản Phẩm";
             Load += frmLoaiSanPham_Load;
