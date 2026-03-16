@@ -45,6 +45,7 @@
             btnThoat = new Button();
             btnTimKiem = new Button();
             btnXuat = new Button();
+            btnNhap = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridView).BeginInit();
             SuspendLayout();
             // 
@@ -157,7 +158,7 @@
             // 
             // btnXoa
             // 
-            btnXoa.Location = new Point(560, 376);
+            btnXoa.Location = new Point(527, 376);
             btnXoa.Name = "btnXoa";
             btnXoa.Size = new Size(94, 29);
             btnXoa.TabIndex = 5;
@@ -167,7 +168,7 @@
             // 
             // btnThoat
             // 
-            btnThoat.Location = new Point(708, 376);
+            btnThoat.Location = new Point(648, 376);
             btnThoat.Name = "btnThoat";
             btnThoat.Size = new Size(94, 29);
             btnThoat.TabIndex = 6;
@@ -177,7 +178,7 @@
             // 
             // btnTimKiem
             // 
-            btnTimKiem.Location = new Point(866, 376);
+            btnTimKiem.Location = new Point(767, 376);
             btnTimKiem.Name = "btnTimKiem";
             btnTimKiem.Size = new Size(94, 29);
             btnTimKiem.TabIndex = 7;
@@ -195,11 +196,22 @@
             btnXuat.UseVisualStyleBackColor = true;
             btnXuat.Click += btnXuat_Click;
             // 
+            // btnNhap
+            // 
+            btnNhap.Location = new Point(888, 376);
+            btnNhap.Name = "btnNhap";
+            btnNhap.Size = new Size(94, 29);
+            btnNhap.TabIndex = 9;
+            btnNhap.Text = "Nhập";
+            btnNhap.UseVisualStyleBackColor = true;
+            btnNhap.Click += btnNhap_Click;
+            // 
             // FrmHoaDon
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1113, 470);
+            Controls.Add(btnNhap);
             Controls.Add(btnXuat);
             Controls.Add(btnTimKiem);
             Controls.Add(btnThoat);
@@ -235,5 +247,6 @@
         private DataGridViewTextBoxColumn NgayLap;
         private DataGridViewTextBoxColumn TongTienHoaDon;
         private DataGridViewLinkColumn XemChiTiet;
+        private Button btnNhap;
     }
 }

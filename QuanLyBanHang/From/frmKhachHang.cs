@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ClosedXML.Excel;
 
 namespace QuanLyBanHang
 {
@@ -16,6 +17,7 @@ namespace QuanLyBanHang
         public frmKhachHang()
         {
             InitializeComponent();
+
         }
         QLBHDbContext context = new QLBHDbContext();
         // Khởi tạo biến ngữ cảnh CSDL 
@@ -37,24 +39,34 @@ namespace QuanLyBanHang
             btnnhapp.Enabled = !giaTri;
             btnXuat.Enabled = !giaTri;
         }
+        void LoadDuLieu()
+        {
+            var kh = context.KhachHang.ToList();
+            dataGridView1.DataSource = kh;
+
+            // Ẩn cột ID
+            dataGridView1.Columns["ID"].Visible = true;
+
+            // Đổi tên cột hiển thị cho đẹp
+            dataGridView1.Columns["HoVaTen"].HeaderText = "Họ Tên";
+            dataGridView1.Columns["DienThoai"].HeaderText = "Điện Thoại";
+            dataGridView1.Columns["DiaChi"].HeaderText = "Địa Chỉ";
+
+            txtHoTen.DataBindings.Clear();
+            txtHoTen.DataBindings.Add("Text", dataGridView1.DataSource, "HoVaTen", false, DataSourceUpdateMode.Never);
+
+            txtDienThoai.DataBindings.Clear();
+            txtDienThoai.DataBindings.Add("Text", dataGridView1.DataSource, "DienThoai", false, DataSourceUpdateMode.Never);
+        }
 
         private void frmKhachHang_Load(object sender, EventArgs e)
         {
+            
             BatTatChucNang(false);
-
-            List<KhachHang> kh = new List<KhachHang>();
-            kh = context.KhachHang.ToList();
-
-            BindingSource bindingSource = new BindingSource();
-            bindingSource.DataSource = kh;
-
-            txtHoTen.DataBindings.Clear();
-            txtHoTen.DataBindings.Add("Text", bindingSource, "HoVaTen", false, DataSourceUpdateMode.Never);
-
-
+            LoadDuLieu();
         }
 
-        private void btnThem_Click(object sender, EventArgs e)
+            private void btnThem_Click(object sender, EventArgs e)
         {
             xuLyThem = true;
             BatTatChucNang(true);
@@ -145,54 +157,122 @@ namespace QuanLyBanHang
 
         private void btnXuat_Click(object sender, EventArgs e)
         {
-            SaveFileDialog save = new SaveFileDialog();
-            save.Filter = "CSV file (*.csv)|*.csv";
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Title = "Xuất dữ liệu ra tập tin Excel";
+            saveFileDialog.Filter = "Tập tin Excel|*.xls;*.xlsx";
+            saveFileDialog.FileName = "KhachHang_" + DateTime.Now.ToShortDateString().Replace("/", "_") + ".xlsx";
 
-            if (save.ShowDialog() == DialogResult.OK)
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                var ds = context.KhachHang.ToList();
-
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine("HoVaTen,DienThoai");
-
-                foreach (var k in ds)
+                try
                 {
-                    sb.AppendLine($"{k.HoVaTen},{k.DienThoai},");
+                    DataTable table = new DataTable();
+
+                    table.Columns.AddRange(new DataColumn[4] {
+                new DataColumn("ID", typeof(int)),
+                new DataColumn("HoVaTen", typeof(string)),
+                new DataColumn("DienThoai", typeof(string)),
+                new DataColumn("DiaChi", typeof(string))
+            });
+
+                    var khachHang = context.KhachHang.ToList();
+                    if (khachHang != null)
+                    {
+                        foreach (var p in khachHang)
+                            table.Rows.Add(p.ID, p.HoVaTen, p.DienThoai, p.DiaChi);
+                    }
+
+                    using (XLWorkbook wb = new XLWorkbook())
+                    {
+                        var sheet = wb.Worksheets.Add(table, "KhachHang");
+                        sheet.Columns().AdjustToContents();
+                        wb.SaveAs(saveFileDialog.FileName);
+
+                        MessageBox.Show("Đã xuất dữ liệu ra tập tin Excel thành công.",
+                        "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
                 }
-
-                System.IO.File.WriteAllText(save.FileName, sb.ToString(), Encoding.UTF8);
-
-                MessageBox.Show("Xuất dữ liệu thành công!");
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
             }
         }
 
         private void btnnhapp_Click(object sender, EventArgs e)
         {
-            OpenFileDialog open = new OpenFileDialog();
-            open.Filter = "CSV file (*.csv)|*.csv";
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Title = "Nhập dữ liệu từ tập tin Excel";
+            openFileDialog.Filter = "Tập tin Excel|*.xls;*.xlsx";
+            openFileDialog.Multiselect = false;
 
-            if (open.ShowDialog() == DialogResult.OK)
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                var lines = System.IO.File.ReadAllLines(open.FileName);
-
-                for (int i = 1; i < lines.Length; i++) // bỏ dòng tiêu đề
+                try
                 {
-                    var parts = lines[i].Split(',');
-
-                    KhachHang kh = new KhachHang()
+                    DataTable table = new DataTable();
+                    using (XLWorkbook workbook = new XLWorkbook(openFileDialog.FileName))
                     {
-                        HoVaTen = parts[1],
-                        DienThoai = parts[2],
+                        IXLWorksheet worksheet = workbook.Worksheet(1);
+                        bool firstRow = true;
+                        string readRange = "1:1";
+                        foreach (IXLRow row in worksheet.RowsUsed())
+                        {
+                            // Đọc dòng tiêu đề (dòng đầu tiên) 
+                            if (firstRow)
+                            {
+                                readRange = string.Format("{0}:{1}", 1, row.LastCellUsed().Address.ColumnNumber);
+                                foreach (IXLCell cell in row.Cells(readRange))
+                                    table.Columns.Add(cell.Value.ToString());
+                                firstRow = false;
+                            }
+                            else // Đọc các dòng nội dung (các dòng tiếp theo) 
+                            {
+                                table.Rows.Add();
+                                int cellIndex = 0;
+                                foreach (IXLCell cell in row.Cells(readRange))
+                                {
+                                    table.Rows[table.Rows.Count - 1][cellIndex] = cell.Value.ToString();
+                                    cellIndex++;
+                                }
+                            }
+                        }
+                        if (table.Rows.Count > 0)
+                        {
+                            foreach (DataRow r in table.Rows)
+                            {
+                                KhachHang kh = new KhachHang();
+                                kh.HoVaTen = r["HoVaTen"].ToString();
+                                kh.DienThoai = r["DienThoai"].ToString();
+                                kh.DiaChi = r["DiaChi"].ToString();
 
-                    };
+                                context.KhachHang.Add(kh);
+                            }
+                            context.SaveChanges();
 
-                    context.KhachHang.Add(kh);
+                            MessageBox.Show("Đã nhập thành công " + table.Rows.Count + " dòng.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            frmKhachHang_Load(sender, e);
+                        }
+                        if (firstRow)
+                            MessageBox.Show("Tập tin Excel rỗng.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    }
                 }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
+            }
+            }
+        
 
-                context.SaveChanges();
-                frmKhachHang_Load(sender, e);
-
-                MessageBox.Show("Nhập dữ liệu thành công!");
+          
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+           
+            if (dataGridView1.CurrentRow != null)
+            {
+                txtHoTen.Text = dataGridView1.CurrentRow.Cells["HoVaTen"].Value.ToString();
+                txtDienThoai.Text = dataGridView1.CurrentRow.Cells["DienThoai"].Value.ToString();
             }
         }
     }

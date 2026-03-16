@@ -50,12 +50,14 @@
             btnInHoaDon = new Button();
             btnThoat = new Button();
             dataGridView = new DataGridView();
-            txtGhiChuHoaDon = new TextBox();
             SanPhamID = new DataGridViewTextBoxColumn();
             TenSanPham = new DataGridViewTextBoxColumn();
             DonGiaBan = new DataGridViewTextBoxColumn();
             SoLuongBan = new DataGridViewTextBoxColumn();
             ThanhTien = new DataGridViewTextBoxColumn();
+            txtGhiChuHoaDon = new TextBox();
+            btnNhap = new Button();
+            btnXuat = new Button();
             ((System.ComponentModel.ISupportInitialize)numDonGiaBan).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numSoLuongBan).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView).BeginInit();
@@ -207,7 +209,7 @@
             // 
             // btnInHoaDon
             // 
-            btnInHoaDon.Location = new Point(401, 516);
+            btnInHoaDon.Location = new Point(370, 506);
             btnInHoaDon.Name = "btnInHoaDon";
             btnInHoaDon.Size = new Size(105, 35);
             btnInHoaDon.TabIndex = 16;
@@ -217,7 +219,7 @@
             // 
             // btnThoat
             // 
-            btnThoat.Location = new Point(611, 522);
+            btnThoat.Location = new Point(499, 512);
             btnThoat.Name = "btnThoat";
             btnThoat.Size = new Size(94, 29);
             btnThoat.TabIndex = 17;
@@ -239,13 +241,6 @@
             dataGridView.Size = new Size(1080, 203);
             dataGridView.TabIndex = 18;
             dataGridView.CellContentClick += dataGridView_CellContentClick;
-            // 
-            // txtGhiChuHoaDon
-            // 
-            txtGhiChuHoaDon.Location = new Point(202, 111);
-            txtGhiChuHoaDon.Name = "txtGhiChuHoaDon";
-            txtGhiChuHoaDon.Size = new Size(561, 27);
-            txtGhiChuHoaDon.TabIndex = 19;
             // 
             // SanPhamID
             // 
@@ -296,11 +291,40 @@
             ThanhTien.MinimumWidth = 6;
             ThanhTien.Name = "ThanhTien";
             // 
+            // txtGhiChuHoaDon
+            // 
+            txtGhiChuHoaDon.Location = new Point(202, 111);
+            txtGhiChuHoaDon.Name = "txtGhiChuHoaDon";
+            txtGhiChuHoaDon.Size = new Size(561, 27);
+            txtGhiChuHoaDon.TabIndex = 19;
+            // 
+            // btnNhap
+            // 
+            btnNhap.Location = new Point(638, 512);
+            btnNhap.Name = "btnNhap";
+            btnNhap.Size = new Size(94, 29);
+            btnNhap.TabIndex = 20;
+            btnNhap.Text = "Nhập";
+            btnNhap.UseVisualStyleBackColor = true;
+            btnNhap.Click += btnNhap_Click;
+            // 
+            // btnXuat
+            // 
+            btnXuat.Location = new Point(786, 509);
+            btnXuat.Name = "btnXuat";
+            btnXuat.Size = new Size(94, 29);
+            btnXuat.TabIndex = 21;
+            btnXuat.Text = "Xuất";
+            btnXuat.UseVisualStyleBackColor = true;
+            btnXuat.Click += btnXuat_Click;
+            // 
             // FrmHoaDon_ChiTiet
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1138, 577);
+            Controls.Add(btnXuat);
+            Controls.Add(btnNhap);
             Controls.Add(txtGhiChuHoaDon);
             Controls.Add(dataGridView);
             Controls.Add(btnThoat);
@@ -359,5 +383,7 @@
         private DataGridViewTextBoxColumn DonGiaBan;
         private DataGridViewTextBoxColumn SoLuongBan;
         private DataGridViewTextBoxColumn ThanhTien;
+        private Button btnNhap;
+        private Button btnXuat;
     }
 }

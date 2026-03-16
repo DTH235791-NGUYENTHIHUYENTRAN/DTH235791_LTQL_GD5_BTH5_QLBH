@@ -28,10 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            DienThoai = new DataGridViewTextBoxColumn();
             dataGridView1 = new DataGridView();
-            HoTen = new DataGridViewTextBoxColumn();
-            idd = new DataGridViewTextBoxColumn();
             btnXuat = new Button();
             btnThoat = new Button();
             btnXoa = new Button();
@@ -50,37 +47,19 @@
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
-            // DienThoai
-            // 
-            DienThoai.HeaderText = "Điện Thoại";
-            DienThoai.MinimumWidth = 6;
-            DienThoai.Name = "DienThoai";
-            // 
             // dataGridView1
             // 
             dataGridView1.AllowUserToAddRows = false;
             dataGridView1.AllowUserToDeleteRows = false;
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { HoTen, idd, DienThoai });
             dataGridView1.Location = new Point(0, 214);
             dataGridView1.MultiSelect = false;
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersWidth = 51;
-            dataGridView1.Size = new Size(801, 232);
+            dataGridView1.Size = new Size(804, 232);
             dataGridView1.TabIndex = 48;
-            // 
-            // HoTen
-            // 
-            HoTen.HeaderText = "Họ Tên";
-            HoTen.MinimumWidth = 6;
-            HoTen.Name = "HoTen";
-            // 
-            // idd
-            // 
-            idd.HeaderText = "ID";
-            idd.MinimumWidth = 6;
-            idd.Name = "idd";
+            dataGridView1.CellContentClick += dataGridView1_CellContentClick;
             // 
             // btnXuat
             // 
@@ -241,7 +220,7 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(812, 450);
             Controls.Add(btnnhapp);
             Controls.Add(btntimkiem);
             Controls.Add(dataGridView1);
@@ -267,11 +246,7 @@
         }
 
         #endregion
-
-        private DataGridViewTextBoxColumn DienThoai;
         private DataGridView dataGridView1;
-        private DataGridViewTextBoxColumn HoTen;
-        private DataGridViewTextBoxColumn idd;
         private Button btnXuat;
         private Button btnThoat;
         private Button btnXoa;

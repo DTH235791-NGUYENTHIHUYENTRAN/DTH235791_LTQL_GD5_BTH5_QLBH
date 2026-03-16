@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ClosedXML.Excel;
 
 namespace QuanLyBanHang
 {
@@ -193,42 +194,129 @@ namespace QuanLyBanHang
 
         private void btnXuat_Click(object sender, EventArgs e)
         {
-            var excel = new Microsoft.Office.Interop.Excel.Application();
-            excel.Visible = true;
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Title = "Xuất dữ liệu ra tập tin Excel";
+            saveFileDialog.Filter = "Tập tin Excel|*.xls;*.xlsx";
+            saveFileDialog.FileName = "NhanVien_" + DateTime.Now.ToShortDateString().Replace("/", "_") + ".xlsx";
 
-            var wb = excel.Workbooks.Add();
-            var ws = (Microsoft.Office.Interop.Excel.Worksheet)wb.ActiveSheet;
-
-            ws.Cells[1, 1] = "ID";
-            ws.Cells[1, 2] = "Họ tên";
-            ws.Cells[1, 3] = "Tên đăng nhập";
-            ws.Cells[1, 4] = "Điện thoại";
-            ws.Cells[1, 5] = "Địa chỉ";
-
-            var list = context.NhanVien.ToList();
-
-            int row = 2;
-            foreach (var nv in list)
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                ws.Cells[row, 1] = nv.ID;
-                ws.Cells[row, 2] = nv.HoVaTen;
-                ws.Cells[row, 3] = nv.TenDangNhap;
-                ws.Cells[row, 4] = nv.DienThoai;
-                ws.Cells[row, 5] = nv.DiaChi;
-                row++;
-            }
+                try
+                {
+                    DataTable table = new DataTable();
 
-            MessageBox.Show("Xuất Excel thành công!");
+                                    table.Columns.AddRange(new DataColumn[6] {
+                    new DataColumn("ID", typeof(int)),
+                    new DataColumn("HoVaTen", typeof(string)),
+                    new DataColumn("DienThoai", typeof(string)),
+                    new DataColumn("DiaChi", typeof(string)),
+                    new DataColumn("TenDangNhap", typeof(string)),
+                    new DataColumn("QuyenHan", typeof(bool))
+                });
+
+                    var nhanVien = context.NhanVien.ToList();
+
+                    if (nhanVien != null)
+                    {
+                        foreach (var nv in nhanVien)
+                        {
+                            table.Rows.Add(nv.ID, nv.HoVaTen, nv.DienThoai);
+                        }
+                    }
+
+                    using (XLWorkbook wb = new XLWorkbook())
+                    {
+                        var sheet = wb.Worksheets.Add(table, "NhanVien");
+                        sheet.Columns().AdjustToContents();
+
+                        wb.SaveAs(saveFileDialog.FileName);
+
+                        MessageBox.Show("Đã xuất dữ liệu ra Excel thành công.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
         }
+
 
         private void btnNhap_Click(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "Excel Files|*.xlsx;*.xls";
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Title = "Nhập dữ liệu từ tập tin Excel";
+            openFileDialog.Filter = "Tập tin Excel|*.xls;*.xlsx";
+            openFileDialog.Multiselect = false;
 
-            if (ofd.ShowDialog() == DialogResult.OK)
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                MessageBox.Show("Bạn có thể đọc Excel bằng Interop hoặc EPPlus (mình hướng dẫn tiếp nếu cần)");
+                try
+                {
+                    DataTable table = new DataTable();
+
+                    using (XLWorkbook workbook = new XLWorkbook(openFileDialog.FileName))
+                    {
+                        IXLWorksheet worksheet = workbook.Worksheet(1);
+
+                        bool firstRow = true;
+                        string readRange = "1:1";
+
+                        foreach (IXLRow row in worksheet.RowsUsed())
+                        {
+                            if (firstRow)
+                            {
+                                readRange = string.Format("{0}:{1}", 1, row.LastCellUsed().Address.ColumnNumber);
+
+                                foreach (IXLCell cell in row.Cells(readRange))
+                                    table.Columns.Add(cell.Value.ToString());
+
+                                firstRow = false;
+                            }
+                            else
+                               {
+                                table.Rows.Add();
+                                int cellIndex = 0;
+
+                                foreach (IXLCell cell in row.Cells(readRange))
+                                {
+                                    table.Rows[table.Rows.Count - 1][cellIndex] = cell.Value.ToString();
+                                    cellIndex++;
+                                }
+                            }
+                        }
+
+                        if (table.Rows.Count > 0)
+                        {
+                            foreach (DataRow r in table.Rows)
+                            {
+                                NhanVien nv = new NhanVien();
+
+                                nv.HoVaTen = r["HoVaTen"].ToString();
+                                nv.DienThoai = r["DienThoai"].ToString();
+                                nv.DiaChi = r["DiaChi"].ToString();
+                                nv.TenDangNhap = r["TenDangNhap"].ToString();
+                                nv.MatKhau = BS.HashPassword(r["MatKhau"].ToString());
+                                nv.QuyenHan = r["QuyenHan"].ToString().ToLower() == "true";
+
+                                context.NhanVien.Add(nv);
+                            
+                        }
+
+                            context.SaveChanges();
+
+                            MessageBox.Show("Đã nhập thành công " + table.Rows.Count + " dòng.");
+                            frmNhanVien_Load(sender, e);
+                        }
+
+                        if (firstRow)
+                            MessageBox.Show("Tập tin Excel rỗng.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
             }
         }
     }

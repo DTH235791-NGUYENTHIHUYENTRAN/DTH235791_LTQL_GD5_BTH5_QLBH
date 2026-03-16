@@ -17,10 +17,11 @@ namespace QuanLyBanHang
             //  Application.Run(new frmKhachHang());
             // Application.Run(new frmLoaiSanPham());
             // Application.Run(new frmNhanVien());
-            // Application.Run(new Sản_phẩm());
-            //   Application.Run(new FrmHoaDon());
-            Application.Run(new FrmMain());
-            Application.Run(new frmDangNhap());
+            //Application.Run(new Sản_phẩm());
+              Application.Run(new FrmHoaDon());
+            //  Application.Run(new FrmMain());
+            //  Application.Run(new frmDangNhap());
+         //   Application.Run(new FrmHoaDon_ChiTiet());
         }
     }
 }

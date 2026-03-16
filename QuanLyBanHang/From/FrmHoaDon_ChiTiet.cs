@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing.Printing;
+using ClosedXML.Excel;
 
 namespace QuanLyBanHang.From
 {
@@ -24,7 +25,7 @@ namespace QuanLyBanHang.From
             id = maHoaDon;
             InHoaDon.PrintPage += InHoaDon_PrintPage;
         }
-      
+
         void LoadCombobox()
         {
             cboNhanVien.DataSource = context.NhanVien.ToList();
@@ -42,7 +43,7 @@ namespace QuanLyBanHang.From
             cboSanPham.ValueMember = "ID";
         }
 
-    void LoadSanPhamVaoGrid()
+        void LoadSanPhamVaoGrid()
         {
             var sp = context.SanPham
                 .Select(x => new
@@ -112,8 +113,8 @@ namespace QuanLyBanHang.From
         }
         private void FrmHoaDon_ChiTiet_Load(object sender, EventArgs e)
         {
-            dataGridView.AutoGenerateColumns = false;
-            dataGridView.DataSource = listChiTiet; // Gán nguồn dữ liệu duy nhất
+            dataGridView.AutoGenerateColumns = true;
+            dataGridView.DataSource = listChiTiet; 
 
             LoadCombobox();
 
@@ -130,7 +131,7 @@ namespace QuanLyBanHang.From
                     foreach (var item in items) listChiTiet.Add(item);
                 }
             }
-            }
+        }
         private void cboSanPham_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (cboSanPham.SelectedValue != null && int.TryParse(cboSanPham.SelectedValue.ToString(), out int spId))
@@ -145,7 +146,7 @@ namespace QuanLyBanHang.From
                     numSoLuongBan.Value = 1;
                 }
             }
-            }
+        }
 
         private void btnInHoaDon_Click(object sender, EventArgs e)
         {
@@ -200,9 +201,9 @@ namespace QuanLyBanHang.From
             y += 10;
             e.Graphics.DrawString($"TỔNG CỘNG: {tongTien:N0} VNĐ", new Font("Arial", 14, FontStyle.Bold), Brushes.Black, 450, y);
         }
-       
-        
-    
+
+
+
 
         private void btnThoat_Click(object sender, EventArgs e)
         {
@@ -219,10 +220,139 @@ namespace QuanLyBanHang.From
                 FrmHoaDon_ChiTiet frm = new FrmHoaDon_ChiTiet(id);
                 frm.ShowDialog();
 
-              
+
             }
         }
+
+        private void btnNhap_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Title = "Nhập dữ liệu từ tập tin Excel";
+            openFileDialog.Filter = "Tập tin Excel|*.xls;*.xlsx";
+            openFileDialog.Multiselect = false;
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    System.Data.DataTable table = new System.Data.DataTable();
+
+                    using (XLWorkbook workbook = new XLWorkbook(openFileDialog.FileName))
+                    {
+                        IXLWorksheet worksheet = workbook.Worksheet(1);
+
+                        bool firstRow = true;
+                        string readRange = "1:1";
+
+                        foreach (IXLRow row in worksheet.RowsUsed())
+                        {
+                            if (firstRow)
+                            {
+                                readRange = string.Format("{0}:{1}", 1, row.LastCellUsed().Address.ColumnNumber);
+
+                                foreach (IXLCell cell in row.Cells(readRange))
+                                    table.Columns.Add(cell.Value.ToString());
+
+                                firstRow = false;
+                            }
+                            else
+                            {
+                                table.Rows.Add();
+                                int cellIndex = 0;
+
+                                foreach (IXLCell cell in row.Cells(readRange))
+                                {
+                                    table.Rows[table.Rows.Count - 1][cellIndex] = cell.Value.ToString();
+                                    cellIndex++;
+                                }
+                            }
+                        }
+
+                        if (table.Rows.Count > 0)
+                        {
+                            foreach (System.Data.DataRow r in table.Rows)
+                            {
+                                HoaDon_ChiTiet ct = new HoaDon_ChiTiet();
+
+                                ct.HoaDonID = Convert.ToInt32(r["HoaDonID"]);
+                                ct.SanPhamID = Convert.ToInt32(r["SanPhamID"]);
+                                ct.SoLuongBan = Convert.ToInt32(r["SoLuongBan"]);
+                                ct.DonGiaBan = Convert.ToInt32(r["DonGiaBan"]);
+
+                                context.HoaDon_ChiTiet.Add(ct);
+                            }
+
+                            context.SaveChanges();
+
+                            MessageBox.Show("Đã nhập thành công " + table.Rows.Count + " dòng.");
+                            FrmHoaDon_ChiTiet_Load(sender, e);
+                        }
+
+                        if (firstRow)
+                            MessageBox.Show("Tập tin Excel rỗng.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
         }
 
+        private void btnXuat_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Title = "Xuất dữ liệu ra tập tin Excel";
+            saveFileDialog.Filter = "Tập tin Excel|*.xls;*.xlsx";
+            saveFileDialog.FileName = "HoaDonChiTiet_" + DateTime.Now.ToShortDateString().Replace("/", "_") + ".xlsx";
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    System.Data.DataTable table = new System.Data.DataTable();
+
+                    table.Columns.AddRange(new System.Data.DataColumn[5] {
+                new System.Data.DataColumn("ID", typeof(int)),
+                new System.Data.DataColumn("HoaDonID", typeof(int)),
+                new System.Data.DataColumn("SanPhamID", typeof(int)),
+                new System.Data.DataColumn("SoLuongBan", typeof(int)),
+                new System.Data.DataColumn("DonGiaBan", typeof(int))
+            });
+
+                    var chiTiet = context.HoaDon_ChiTiet.ToList();
+
+                    if (chiTiet != null)
+                    {
+                        foreach (var ct in chiTiet)
+                        {
+                            table.Rows.Add(
+                                ct.ID,
+                                ct.HoaDonID,
+                                ct.SanPhamID,
+                                ct.SoLuongBan,
+                                ct.DonGiaBan
+                            );
+                        }
+                    }
+
+                    using (XLWorkbook wb = new XLWorkbook())
+                    {
+                        var sheet = wb.Worksheets.Add(table, "HoaDonChiTiet");
+                        sheet.Columns().AdjustToContents();
+
+                        wb.SaveAs(saveFileDialog.FileName);
+
+                        MessageBox.Show("Đã xuất dữ liệu ra Excel thành công.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+        }
     }
+
+}
 

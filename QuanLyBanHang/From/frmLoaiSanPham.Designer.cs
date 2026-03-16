@@ -33,6 +33,7 @@
             ID = new DataGridViewTextBoxColumn();
             TenLoai = new DataGridViewTextBoxColumn();
             groupBox2 = new GroupBox();
+            btnNhap = new Button();
             btnThoat = new Button();
             btnHuyBo = new Button();
             btnLuu = new Button();
@@ -41,6 +42,7 @@
             btnThem = new Button();
             label1 = new Label();
             txtTenLoai = new TextBox();
+            btnXuat = new Button();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridView).BeginInit();
             groupBox2.SuspendLayout();
@@ -92,6 +94,8 @@
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(btnXuat);
+            groupBox2.Controls.Add(btnNhap);
             groupBox2.Controls.Add(btnThoat);
             groupBox2.Controls.Add(btnHuyBo);
             groupBox2.Controls.Add(btnLuu);
@@ -108,6 +112,16 @@
             groupBox2.TabIndex = 1;
             groupBox2.TabStop = false;
             groupBox2.Text = "Thông tin loại sản phẩm";
+            // 
+            // btnNhap
+            // 
+            btnNhap.Location = new Point(19, 92);
+            btnNhap.Name = "btnNhap";
+            btnNhap.Size = new Size(80, 30);
+            btnNhap.TabIndex = 3;
+            btnNhap.Text = "Nhập";
+            btnNhap.UseVisualStyleBackColor = true;
+            btnNhap.Click += btnNhap_Click;
             // 
             // btnThoat
             // 
@@ -192,6 +206,16 @@
             txtTenLoai.Size = new Size(449, 27);
             txtTenLoai.TabIndex = 0;
             // 
+            // btnXuat
+            // 
+            btnXuat.Location = new Point(105, 92);
+            btnXuat.Name = "btnXuat";
+            btnXuat.Size = new Size(75, 30);
+            btnXuat.TabIndex = 4;
+            btnXuat.Text = "Xuất";
+            btnXuat.UseVisualStyleBackColor = true;
+            btnXuat.Click += btnXuat_Click;
+            // 
             // frmLoaiSanPham
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -225,5 +249,7 @@
         private Button btnThem;
         private DataGridViewTextBoxColumn ID;
         private DataGridViewTextBoxColumn TenLoai;
+        private Button btnNhap;
+        private Button btnXuat;
     }
 }
