@@ -47,7 +47,7 @@ namespace QuanLyBanHang.From
            MoTa = r.MoTa,
            SoLuong = r.SoLuong,
            DonGia = r.DonGia,
-           HinhAnh = LoadImage(r.HinhAnh)
+           HinhAnh =r.HinhAnh
        })
        .ToList();
 

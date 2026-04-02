@@ -1,4 +1,5 @@
 ﻿using QuanLyBanHang.From;
+using QuanLyBanHang.Reports;
 
 namespace QuanLyBanHang
 {
@@ -18,10 +19,12 @@ namespace QuanLyBanHang
             // Application.Run(new frmLoaiSanPham());
             // Application.Run(new frmNhanVien());
             //Application.Run(new Sản_phẩm());
-              Application.Run(new FrmHoaDon());
+             // Application.Run(new FrmHoaDon());
             //  Application.Run(new FrmMain());
             //  Application.Run(new frmDangNhap());
-         //   Application.Run(new FrmHoaDon_ChiTiet());
+            //   Application.Run(new FrmHoaDon_ChiTiet());
+             //  Application.Run(new frmThongKeSanPham());
+            Application.Run(new frmThongKeDoanhThu());
         }
     }
 }

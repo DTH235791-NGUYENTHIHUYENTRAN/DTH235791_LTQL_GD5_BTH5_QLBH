@@ -12,6 +12,7 @@ using Microsoft.Office.Interop.Excel;
 using Microsoft.EntityFrameworkCore;
 using System.Drawing.Printing;
 using ClosedXML.Excel;
+using QuanLyBanHang.Reports;
 namespace QuanLyBanHang.From
   
 
@@ -144,17 +145,11 @@ namespace QuanLyBanHang.From
 
         private void btnInHoaDon_Click(object sender, EventArgs e)
         {
-            id = Convert.ToInt32(dataGridView.CurrentRow.Cells["ID"].Value);
-
-            listChiTiet = context.HoaDon_ChiTiet
-                .Include(x => x.SanPham)
-                .Where(x => x.HoaDonID == id)
-                .ToList();
-
-            PrintPreviewDialog preview = new PrintPreviewDialog();
-            preview.Document = printDoc;
-            printDoc.PrintPage += InHoaDon_PrintPage;
-            preview.ShowDialog();
+            id = Convert.ToInt32(dataGridView.CurrentRow.Cells["ID"].Value.ToString());
+            using (frmInHoaDon inHoaDon = new frmInHoaDon(id))
+            {
+                inHoaDon.ShowDialog();
+            }
         }
 
         private void InHoaDon_PrintPage(object sender, PrintPageEventArgs e)

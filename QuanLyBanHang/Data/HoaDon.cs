@@ -37,3 +37,5 @@ public class DanhSachHoaDon
     public decimal TongTienHoaDon { get; set; } // Thêm 
 } 
 
+
+

@@ -85,8 +85,8 @@ namespace QuanLyBanHang.Migrations
                     b.Property<int>("SanPhamID")
                         .HasColumnType("int");
 
-                    b.Property<short>("SoLuongBan")
-                        .HasColumnType("smallint");
+                    b.Property<int>("SoLuongBan")
+                        .HasColumnType("int");
 
                     b.HasKey("ID");
 

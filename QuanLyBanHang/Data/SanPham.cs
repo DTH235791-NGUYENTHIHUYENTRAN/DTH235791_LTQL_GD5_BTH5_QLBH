@@ -36,6 +36,16 @@ public class DanhSachSanPham
     public string TenSanPham { get; set; }
     public int DonGia { get; set; }
     public int SoLuong { get; set; }
-    public Image HinhAnh { get; set; }
+    public string? HinhAnh { get; set; }
     public string? MoTa { get; set; }
+    public string HinhAnhPath => HinhAnh == null ? "" : "";
+}
+
+public class ThongKeDoanhThu
+{
+    public DateTime NgayLap { get; set; }
+    public string TenSanPham { get; set; }
+    public int SoLuong { get; set; }
+    public decimal DonGia { get; set; }
+    public decimal ThanhTien { get; set; }
 }

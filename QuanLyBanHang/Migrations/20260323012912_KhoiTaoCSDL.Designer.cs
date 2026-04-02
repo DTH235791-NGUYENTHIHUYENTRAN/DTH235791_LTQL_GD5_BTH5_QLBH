@@ -12,8 +12,8 @@ using QuanLyBanHang.Data;
 namespace QuanLyBanHang.Migrations
 {
     [DbContext(typeof(QLBHDbContext))]
-    [Migration("20260224124747_KhoiTao")]
-    partial class KhoiTao
+    [Migration("20260323012912_KhoiTaoCSDL")]
+    partial class KhoiTaoCSDL
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -88,8 +88,8 @@ namespace QuanLyBanHang.Migrations
                     b.Property<int>("SanPhamID")
                         .HasColumnType("int");
 
-                    b.Property<short>("SoLuongBan")
-                        .HasColumnType("smallint");
+                    b.Property<int>("SoLuongBan")
+                        .HasColumnType("int");
 
                     b.HasKey("ID");
 
