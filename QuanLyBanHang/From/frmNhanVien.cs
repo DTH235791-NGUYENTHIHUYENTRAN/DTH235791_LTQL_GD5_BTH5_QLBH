@@ -194,49 +194,33 @@ namespace QuanLyBanHang
 
         private void btnXuat_Click(object sender, EventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Title = "Xuất dữ liệu ra tập tin Excel";
-            saveFileDialog.Filter = "Tập tin Excel|*.xls;*.xlsx";
-            saveFileDialog.FileName = "NhanVien_" + DateTime.Now.ToShortDateString().Replace("/", "_") + ".xlsx";
+            SaveFileDialog sfd = new SaveFileDialog
+            {
+                Filter = "Excel|*.xlsx",
+                FileName = "NhanVien_" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx"
+            };
 
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            if (sfd.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                    DataTable table = new DataTable();
-
-                                    table.Columns.AddRange(new DataColumn[6] {
-                    new DataColumn("ID", typeof(int)),
-                    new DataColumn("HoVaTen", typeof(string)),
-                    new DataColumn("DienThoai", typeof(string)),
-                    new DataColumn("DiaChi", typeof(string)),
-                    new DataColumn("TenDangNhap", typeof(string)),
-                    new DataColumn("QuyenHan", typeof(bool))
-                });
-
-                    var nhanVien = context.NhanVien.ToList();
-
-                    if (nhanVien != null)
+                    using (var workbook = new XLWorkbook())
                     {
-                        foreach (var nv in nhanVien)
-                        {
-                            table.Rows.Add(nv.ID, nv.HoVaTen, nv.DienThoai);
-                        }
-                    }
+                        var worksheet = workbook.Worksheets.Add("NhanVien");
+                        // Lấy toàn bộ danh sách Nhân Viên
+                        var data = context.NhanVien.ToList();
 
-                    using (XLWorkbook wb = new XLWorkbook())
-                    {
-                        var sheet = wb.Worksheets.Add(table, "NhanVien");
-                        sheet.Columns().AdjustToContents();
+                        // Chèn bảng trực tiếp từ ô A1
+                        worksheet.Cell(1, 1).InsertTable(data);
+                        worksheet.Columns().AdjustToContents(); // Tự động căn chỉnh độ rộng
 
-                        wb.SaveAs(saveFileDialog.FileName);
-
-                        MessageBox.Show("Đã xuất dữ liệu ra Excel thành công.");
+                        workbook.SaveAs(sfd.FileName);
+                        MessageBox.Show("Xuất danh sách nhân viên thành công!", "Thông báo");
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    MessageBox.Show("Lỗi xuất file: " + ex.Message);
                 }
             }
         }
@@ -244,78 +228,61 @@ namespace QuanLyBanHang
 
         private void btnNhap_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Title = "Nhập dữ liệu từ tập tin Excel";
-            openFileDialog.Filter = "Tập tin Excel|*.xls;*.xlsx";
-            openFileDialog.Multiselect = false;
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "Excel Files|*.xlsx;*.xls",
+                Title = "Chọn file Excel Nhân Viên"
+            };
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                    DataTable table = new DataTable();
-
                     using (XLWorkbook workbook = new XLWorkbook(openFileDialog.FileName))
                     {
-                        IXLWorksheet worksheet = workbook.Worksheet(1);
+                        var worksheet = workbook.Worksheet(1);
+                        // Bỏ qua dòng tiêu đề (dòng 1)
+                        var rows = worksheet.RangeUsed().RowsUsed().Skip(1);
 
-                        bool firstRow = true;
-                        string readRange = "1:1";
-
-                        foreach (IXLRow row in worksheet.RowsUsed())
+                        foreach (var row in rows)
                         {
-                            if (firstRow)
-                            {
-                                readRange = string.Format("{0}:{1}", 1, row.LastCellUsed().Address.ColumnNumber);
+                            NhanVien nv = new NhanVien();
 
-                                foreach (IXLCell cell in row.Cells(readRange))
-                                    table.Columns.Add(cell.Value.ToString());
+                            // Lưu ý thứ tự Cell(x) khớp với file Excel của bạn:
+                            // Cột 1: ID (Bỏ qua vì tự tăng)
+                            // Cột 2: HoVaTen
+                            nv.HoVaTen = row.Cell(2).Value.ToString();
 
-                                firstRow = false;
-                            }
-                            else
-                               {
-                                table.Rows.Add();
-                                int cellIndex = 0;
+                            // Cột 3: DienThoai
+                            nv.DienThoai = row.Cell(3).Value.ToString();
 
-                                foreach (IXLCell cell in row.Cells(readRange))
-                                {
-                                    table.Rows[table.Rows.Count - 1][cellIndex] = cell.Value.ToString();
-                                    cellIndex++;
-                                }
-                            }
+                            // Cột 4: DiaChi
+                            nv.DiaChi = row.Cell(4).Value.ToString();
+
+                            // Cột 5: TenDangNhap
+                            nv.TenDangNhap = row.Cell(5).Value.ToString();
+
+                            // Cột 6: MatKhau (Sử dụng hàm HashPassword của bạn)
+                            string rawPass = row.Cell(6).Value.ToString();
+                            nv.MatKhau = BS.HashPassword(string.IsNullOrEmpty(rawPass) ? "123" : rawPass);
+
+                            // Cột 7: QuyenHan (Xử lý kiểu bool)
+                            string quyen = row.Cell(7).Value.ToString().ToLower();
+                            nv.QuyenHan = (quyen == "true" || quyen == "1");
+
+                            context.NhanVien.Add(nv);
                         }
 
-                        if (table.Rows.Count > 0)
-                        {
-                            foreach (DataRow r in table.Rows)
-                            {
-                                NhanVien nv = new NhanVien();
+                        context.SaveChanges();
+                        MessageBox.Show("Nhập dữ liệu nhân viên thành công!", "Thông báo");
 
-                                nv.HoVaTen = r["HoVaTen"].ToString();
-                                nv.DienThoai = r["DienThoai"].ToString();
-                                nv.DiaChi = r["DiaChi"].ToString();
-                                nv.TenDangNhap = r["TenDangNhap"].ToString();
-                                nv.MatKhau = BS.HashPassword(r["MatKhau"].ToString());
-                                nv.QuyenHan = r["QuyenHan"].ToString().ToLower() == "true";
-
-                                context.NhanVien.Add(nv);
-                            
-                        }
-
-                            context.SaveChanges();
-
-                            MessageBox.Show("Đã nhập thành công " + table.Rows.Count + " dòng.");
-                            frmNhanVien_Load(sender, e);
-                        }
-
-                        if (firstRow)
-                            MessageBox.Show("Tập tin Excel rỗng.");
+                        // Gọi hàm load lại DataGridView
+                        frmNhanVien_Load(sender, e);
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    MessageBox.Show("Lỗi nhập dữ liệu: " + ex.Message);
                 }
             }
         }

@@ -69,7 +69,7 @@
             dataGridView.MultiSelect = false;
             dataGridView.Name = "dataGridView";
             dataGridView.RowHeadersWidth = 51;
-            dataGridView.Size = new Size(1081, 260);
+            dataGridView.Size = new Size(841, 260);
             dataGridView.TabIndex = 1;
             dataGridView.CellContentClick += dataGridView_CellContentClick;
             // 
@@ -138,7 +138,7 @@
             // 
             // btnInHoaDon
             // 
-            btnInHoaDon.Location = new Point(253, 376);
+            btnInHoaDon.Location = new Point(201, 376);
             btnInHoaDon.Name = "btnInHoaDon";
             btnInHoaDon.Size = new Size(94, 29);
             btnInHoaDon.TabIndex = 3;
@@ -148,7 +148,7 @@
             // 
             // btnSua
             // 
-            btnSua.Location = new Point(408, 376);
+            btnSua.Location = new Point(311, 376);
             btnSua.Name = "btnSua";
             btnSua.Size = new Size(94, 29);
             btnSua.TabIndex = 4;
@@ -158,7 +158,7 @@
             // 
             // btnXoa
             // 
-            btnXoa.Location = new Point(527, 376);
+            btnXoa.Location = new Point(411, 376);
             btnXoa.Name = "btnXoa";
             btnXoa.Size = new Size(94, 29);
             btnXoa.TabIndex = 5;
@@ -168,7 +168,7 @@
             // 
             // btnThoat
             // 
-            btnThoat.Location = new Point(648, 376);
+            btnThoat.Location = new Point(511, 376);
             btnThoat.Name = "btnThoat";
             btnThoat.Size = new Size(94, 29);
             btnThoat.TabIndex = 6;
@@ -178,7 +178,7 @@
             // 
             // btnTimKiem
             // 
-            btnTimKiem.Location = new Point(767, 376);
+            btnTimKiem.Location = new Point(620, 376);
             btnTimKiem.Name = "btnTimKiem";
             btnTimKiem.Size = new Size(94, 29);
             btnTimKiem.TabIndex = 7;
@@ -188,7 +188,7 @@
             // 
             // btnXuat
             // 
-            btnXuat.Location = new Point(1007, 376);
+            btnXuat.Location = new Point(820, 376);
             btnXuat.Name = "btnXuat";
             btnXuat.Size = new Size(94, 29);
             btnXuat.TabIndex = 8;
@@ -198,7 +198,7 @@
             // 
             // btnNhap
             // 
-            btnNhap.Location = new Point(888, 376);
+            btnNhap.Location = new Point(720, 376);
             btnNhap.Name = "btnNhap";
             btnNhap.Size = new Size(94, 29);
             btnNhap.TabIndex = 9;
@@ -210,7 +210,7 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1113, 470);
+            ClientSize = new Size(924, 470);
             Controls.Add(btnNhap);
             Controls.Add(btnXuat);
             Controls.Add(btnTimKiem);

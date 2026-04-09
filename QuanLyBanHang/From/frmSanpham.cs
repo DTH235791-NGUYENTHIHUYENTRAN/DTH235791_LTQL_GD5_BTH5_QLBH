@@ -19,37 +19,35 @@ namespace QuanLyBanHang.From
 {
     public partial class Sản_phẩm : Form
     {
+        QLBHDbContext context = new QLBHDbContext();
+        bool xuLyThem = false;
+        int id;
+        string imagesFolder = Path.Combine(Application.StartupPath, "Images");
         public Sản_phẩm()
         {
             InitializeComponent();
         }
 
 
-        QLBHDbContext context = new QLBHDbContext();
-        bool xuLyThem = false;
-        int id;
-        string imagesFolder = Path.Combine(Application.StartupPath, "Images");
-
         private void LoadDataGridView()
         {
             var danhSach = context.SanPham
-       .Include(x => x.LoaiSanPham)
-       .Include(x => x.HangSanXuat)
-       .AsEnumerable()
-       .Select(r => new DanhSachSanPham
-       {
-           ID = r.ID,
-           LoaiSanPhamID = r.LoaiSanPhamID,
-           TenLoai = r.LoaiSanPham.TenLoai,
-           HangSanXuatID = r.HangSanXuatID,
-           TenHangSanXuat = r.HangSanXuat.TenHangSanXuat,
-           TenSanPham = r.TenSanPham,
-           MoTa = r.MoTa,
-           SoLuong = r.SoLuong,
-           DonGia = r.DonGia,
-           HinhAnh =r.HinhAnh
-       })
-       .ToList();
+                .Include(x => x.LoaiSanPham)
+                .Include(x => x.HangSanXuat)
+                .Select(r => new DanhSachSanPham
+                {
+                    ID = r.ID,
+                    LoaiSanPhamID = r.LoaiSanPhamID,
+                    TenLoai = r.LoaiSanPham.TenLoai,
+                    HangSanXuatID = r.HangSanXuatID,
+                    TenHangSanXuat = r.HangSanXuat.TenHangSanXuat,
+                    TenSanPham = r.TenSanPham,
+                    MoTa = r.MoTa,
+                    SoLuong = r.SoLuong,
+                    DonGia = r.DonGia,
+                    HinhAnh = r.HinhAnh 
+                })
+                .ToList();
 
             dataGridView.DataSource = danhSach;
             dataGridView.RowTemplate.Height = 80;
@@ -78,9 +76,6 @@ namespace QuanLyBanHang.From
 
 
 
-
-
-
         public void LayLoaiSanPhamVaoComboBox()
         {
             cboLoaiSanPham.DataSource = context.LoaiSanPhams.ToList();
@@ -90,120 +85,103 @@ namespace QuanLyBanHang.From
 
         public void LayHangSanXuatVaoComboBox()
         {
-
             cboHangSanXuat.DataSource = context.HangSanXuat.ToList();
-            cboHangSanXuat.DisplayMember = "TenHangSanXuat";
             cboHangSanXuat.ValueMember = "ID";
+            cboHangSanXuat.DisplayMember = "TenHangSanXuat";
         }
 
 
         private void Sản_phẩm_Load(object sender, EventArgs e)
         {
+
+            if (!Directory.Exists(imagesFolder)) Directory.CreateDirectory(imagesFolder);
+
             BatTatChucNang(false);
             LayLoaiSanPhamVaoComboBox();
             LayHangSanXuatVaoComboBox();
 
             numDonGia.Maximum = 1000000000;
             numDonGia.ThousandsSeparator = true;
-
             dataGridView.AutoGenerateColumns = false;
+         
+            dataGridView.CellFormatting += dataGridView_CellFormatting;
 
             LoadDataGridView();
 
         }
-
-
-
         private void btnThem_Click(object sender, EventArgs e)
         {
             xuLyThem = true;
             BatTatChucNang(true);
-
             txtTenSanPham.Clear();
             txtMoTa.Clear();
             numSoLuong.Value = 0;
             numDonGia.Value = 0;
             picHinhAnh.Image = null;
+            picHinhAnh.Tag = null;
 
         }
 
         private void btnSua_Click(object sender, EventArgs e)
         {
             if (dataGridView.CurrentRow == null) return;
-
             xuLyThem = false;
             BatTatChucNang(true);
-
-            id = Convert.ToInt32(dataGridView.CurrentRow.Cells["ID"].Value);
+            var row = dataGridView.CurrentRow.DataBoundItem as DanhSachSanPham;
+            id = row.ID;
         }
 
         private void btnLuu_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(cboLoaiSanPham.Text))
-                MessageBox.Show("Vui lòng chọn loại sản phẩm.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            else if (string.IsNullOrWhiteSpace(cboHangSanXuat.Text))
-                MessageBox.Show("Vui lòng chọn hãng sản xuất.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            else if (string.IsNullOrWhiteSpace(txtTenSanPham.Text))
-                MessageBox.Show("Vui lòng nhập tên sản phẩm.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            else if (numSoLuong.Value <= 0)
-                MessageBox.Show("Số lượng phải lớn hơn 0.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            else if (numDonGia.Value <= 0)
-                MessageBox.Show("Đơn giá sản phẩm phải lớn hơn 0.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            if (string.IsNullOrWhiteSpace(txtTenSanPham.Text))
+            {
+                MessageBox.Show("Vui lòng nhập tên sản phẩm!");
+                return;
+            }
+
+            SanPham sp;
+            if (xuLyThem)
+            {
+                sp = new SanPham();
+                context.SanPham.Add(sp);
+            }
             else
             {
-                if (xuLyThem)
+                sp = context.SanPham.Find(id);
+            }
 
-                    if (xuLyThem)
-                    {
-                        SanPham sp = new SanPham();
-                        sp.LoaiSanPhamID = (int)cboLoaiSanPham.SelectedValue;
-                        sp.HangSanXuatID = (int)cboHangSanXuat.SelectedValue;
-                        sp.TenSanPham = txtTenSanPham.Text;
-                        sp.MoTa = txtMoTa.Text;
-                        sp.SoLuong = (int)numSoLuong.Value;
-                        sp.DonGia = (int)numDonGia.Value;
-                        sp.HinhAnh = picHinhAnh.Tag?.ToString();
-
-                        context.SanPham.Add(sp);
-                    }
-                    else
-                    {
-                        SanPham sp = context.SanPham.Find(id);
-                        if (sp != null)
-                        {
-                            sp.LoaiSanPhamID = (int)cboLoaiSanPham.SelectedValue;
-                            sp.HangSanXuatID = (int)cboHangSanXuat.SelectedValue;
-                            sp.TenSanPham = txtTenSanPham.Text;
-                            sp.MoTa = txtMoTa.Text;
-                            sp.SoLuong = (int)numSoLuong.Value;
-                            sp.DonGia = (int)numDonGia.Value;
-                            sp.HinhAnh = picHinhAnh.Tag?.ToString();
-                        }
-                    }
+            if (sp != null)
+            {
+                sp.LoaiSanPhamID = (int)cboLoaiSanPham.SelectedValue;
+                sp.HangSanXuatID = (int)cboHangSanXuat.SelectedValue;
+                sp.TenSanPham = txtTenSanPham.Text;
+                sp.MoTa = txtMoTa.Text;
+                sp.SoLuong = (int)numSoLuong.Value;
+                sp.DonGia = (int)numDonGia.Value;
+                sp.HinhAnh = picHinhAnh.Tag?.ToString(); // Lưu tên file ảnh
 
                 context.SaveChanges();
-                Sản_phẩm_Load(sender, e);
+                MessageBox.Show("Lưu thành công!");
+                BatTatChucNang(false);
+                LoadDataGridView();
             }
         }
         private void btnXoa_Click(object sender, EventArgs e)
         {
             if (dataGridView.CurrentRow == null) return;
-
-            var row = dataGridView.CurrentRow.DataBoundItem as DanhSachSanPham;
-            if (row == null) return;
-
-            id = row.ID;
-
-            var sp = context.SanPham.Find(id);
-            if (sp != null)
+            if (MessageBox.Show("Xóa sản phẩm này?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
-                context.SanPham.Remove(sp);
-                context.SaveChanges();
+                var row = dataGridView.CurrentRow.DataBoundItem as DanhSachSanPham;
+                var sp = context.SanPham.Find(row.ID);
+                if (sp != null)
+                {
+                    context.SanPham.Remove(sp);
+                    context.SaveChanges();
+                    LoadDataGridView();
+                }
             }
 
-            Sản_phẩm_Load(sender, e);
-
-        }
+            }
 
         private void btnHuyBo_Click(object sender, EventArgs e)
         {
@@ -282,241 +260,177 @@ namespace QuanLyBanHang.From
 
         private void btnXuat_Click(object sender, EventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Title = "Xuất dữ liệu ra Excel";
-            saveFileDialog.Filter = "Excel|*.xlsx";
-            saveFileDialog.FileName = "SanPham.xlsx";
-
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            SaveFileDialog sfd = new SaveFileDialog { Filter = "Excel|*.xlsx", FileName = "DanhSachSanPham.xlsx" };
+            if (sfd.ShowDialog() == DialogResult.OK)
             {
-                try
+                using (var workbook = new XLWorkbook())
                 {
-                    DataTable table = new DataTable();
-
-                    table.Columns.Add("ID");
-                    table.Columns.Add("HangSanXuatID");
-                    table.Columns.Add("LoaiSanPhamID");
-                    table.Columns.Add("TenSanPham");
-                    table.Columns.Add("DonGia");
-                    table.Columns.Add("SoLuong");
-                    table.Columns.Add("HinhAnh");
-                    table.Columns.Add("MoTa");
-
-                    var sanPham = context.SanPham.ToList();
-
-                    foreach (var p in sanPham)
-                    {
-                        table.Rows.Add(
-                            p.ID,
-                            p.HangSanXuatID,
-                            p.LoaiSanPhamID,
-                            p.TenSanPham,
-                            p.DonGia,
-                            p.SoLuong,
-                            p.HinhAnh,
-                            p.MoTa
-                        );
-                    }
-
-                    using (XLWorkbook wb = new XLWorkbook())
-                    {
-                        var sheet = wb.Worksheets.Add(table, "SanPham");
-                        sheet.Columns().AdjustToContents();
-                        wb.SaveAs(saveFileDialog.FileName);
-                    }
-
-                    MessageBox.Show("Xuất Excel thành công");
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
+                    var worksheet = workbook.Worksheets.Add("Products");
+                    var data = context.SanPham.ToList();
+                    worksheet.Cell(1, 1).InsertTable(data);
+                    workbook.SaveAs(sfd.FileName);
+                    MessageBox.Show("Xuất Excel thành công!");
+                
+            }
             }
         }
-        
-
 
         private void btnNhap_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Title = "Nhập dữ liệu từ tập tin Excel";
-            openFileDialog.Filter = "Tập tin Excel|*.xls;*.xlsx";
-
+            openFileDialog.Filter = "Excel Files|*.xlsx;*.xls";
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                    DataTable table = new DataTable();
-
                     using (XLWorkbook workbook = new XLWorkbook(openFileDialog.FileName))
                     {
-                        IXLWorksheet worksheet = workbook.Worksheet(1);
-                        bool firstRow = true;
-                        string readRange = "1:1";
+                        var worksheet = workbook.Worksheet(1);
+                        var rows = worksheet.RangeUsed().RowsUsed().Skip(1);
 
-                        foreach (IXLRow row in worksheet.RowsUsed())
-                        {
-                            if (firstRow)
-                            {
-                                readRange = string.Format("{0}:{1}", 1, row.LastCellUsed().Address.ColumnNumber);
-
-                                foreach (IXLCell cell in row.Cells(readRange))
-                                    table.Columns.Add(cell.Value.ToString());
-
-                                firstRow = false;
-                            }
-                            else
-                            {
-                                table.Rows.Add();
-                                int cellIndex = 0;
-
-                                foreach (IXLCell cell in row.Cells(readRange))
-                                {
-                                    table.Rows[table.Rows.Count - 1][cellIndex] = cell.Value.ToString();
-                                    cellIndex++;
-                                }
-                            }
-                        }
-
-                        foreach (DataRow r in table.Rows)
+                        foreach (var row in rows)
                         {
                             SanPham sp = new SanPham();
 
-                            sp.HangSanXuatID = int.Parse(r["HangSanXuatID"].ToString());
-                            sp.LoaiSanPhamID = int.Parse(r["LoaiSanPhamID"].ToString());
-                            sp.TenSanPham = r["TenSanPham"].ToString();
-                            sp.DonGia = int.Parse(r["DonGia"].ToString());
-                            sp.SoLuong = int.Parse(r["SoLuong"].ToString());
-                            sp.HinhAnh = r["HinhAnh"].ToString();
-                            sp.MoTa = r["MoTa"].ToString();
+                            // Cột 2: HangSanXuatID
+                            sp.HangSanXuatID = int.Parse(row.Cell(2).Value.ToString());
+                            // Cột 3: LoaiSanPhamID
+                            sp.LoaiSanPhamID = int.Parse(row.Cell(3).Value.ToString());
+                            // Cột 4: TenSanPham
+                            sp.TenSanPham = row.Cell(4).Value.ToString();
+
+                            // Cột 5: DonGia (Sửa lỗi gạch đỏ ở đây)
+                            string giaTriGia = row.Cell(5).Value.ToString();
+                            sp.DonGia = string.IsNullOrEmpty(giaTriGia) ? 0 : int.Parse(giaTriGia);
+
+                            // Cột 6: SoLuong
+                            sp.SoLuong = int.Parse(row.Cell(6).Value.ToString());
+                            // Cột 7: HinhAnh
+                            sp.HinhAnh = row.Cell(7).Value.ToString();
+                            // Cột 8: MoTa
+                            sp.MoTa = row.Cell(8).Value.ToString();
 
                             context.SanPham.Add(sp);
                         }
-
                         context.SaveChanges();
-
-                        MessageBox.Show("Nhập dữ liệu thành công",
-                            "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                        Sản_phẩm_Load(sender, e);
+                        MessageBox.Show("Nhập dữ liệu thành công!", "Thông báo");
+                        LoadDataGridView(); // Cập nhật lại bảng hiển thị
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    MessageBox.Show("Lỗi: " + ex.Message);
                 }
             }
         }
 
         private void btnDoiAnh_Click(object sender, EventArgs e)
         {
-            if (dataGridView.CurrentRow == null)
+            OpenFileDialog open = new OpenFileDialog { Filter = "Image Files|*.jpg;*.jpeg;*.png" };
+            if (open.ShowDialog() == DialogResult.OK)
             {
-                MessageBox.Show("Vui lòng chọn sản phẩm trước!");
-                return;
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(open.FileName);
+                string savePath = Path.Combine(imagesFolder, fileName);
+                File.Copy(open.FileName, savePath, true);
+
+                picHinhAnh.Image = LoadImage(fileName);
+                picHinhAnh.SizeMode = PictureBoxSizeMode.Zoom;
+                picHinhAnh.Tag = fileName; // Gán tên file vào Tag để btnLuu lấy
             }
-
-            OpenFileDialog open = new OpenFileDialog();
-            open.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
-
-            if (open.ShowDialog() != DialogResult.OK) return;
-
-            // Tạo thư mục Images nếu chưa có
-            if (!Directory.Exists(imagesFolder))
-                Directory.CreateDirectory(imagesFolder);
-
-            // Lấy tên file
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(open.FileName);
-            string savePath = Path.Combine(imagesFolder, fileName);
-
-            // Copy ảnh vào thư mục Images
-            File.Copy(open.FileName, savePath, true);
-
-            // Lấy ID bằng DataBoundItem (KHÔNG dùng Cells["ID"])
-            var row = dataGridView.CurrentRow.DataBoundItem as DanhSachSanPham;
-            if (row == null) return;
-
-            var sp = context.SanPham.Find(row.ID);
-            if (sp == null) return;
-
-            // Cập nhật DB
-            sp.HinhAnh = fileName;
-            context.SaveChanges();
-
-            // Hiển thị ảnh bằng LoadImage (không khóa file)
-            picHinhAnh.Image = LoadImage(fileName);
-            picHinhAnh.SizeMode = PictureBoxSizeMode.Zoom;
-            picHinhAnh.Tag = fileName;
-
-            // Load lại DataGridView
-            LoadDataGridView();
-
-            MessageBox.Show("Đổi ảnh thành công!");
         }
-       
 
+
+        private void dataGridView_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            var row = dataGridView.Rows[e.RowIndex].DataBoundItem as DanhSachSanPham;
+            if (row != null)
+            {
+                txtTenSanPham.Text = row.TenSanPham;
+                numSoLuong.Value = row.SoLuong;
+                numDonGia.Value = row.DonGia;
+                txtMoTa.Text = row.MoTa;
+                cboLoaiSanPham.SelectedValue = row.LoaiSanPhamID;
+                cboHangSanXuat.SelectedValue = row.HangSanXuatID;
+
+                picHinhAnh.Image = LoadImage(row.HinhAnh);
+                picHinhAnh.Tag = row.HinhAnh;
+            }
+        }
+
+        private void btnXoayanh_Click(object sender, EventArgs e)
+        {
+            if (picHinhAnh.Image == null || picHinhAnh.Tag == null) return;
+
+            // 1. Clone ảnh để tránh khóa file
+            Image imgBuffer = (Image)picHinhAnh.Image.Clone();
+            imgBuffer.RotateFlip(RotateFlipType.Rotate90FlipNone);
+
+            string fileName = picHinhAnh.Tag.ToString();
+            string path = Path.Combine(imagesFolder, fileName);
+
+            // 2. Giải phóng ảnh cũ
+            picHinhAnh.Image.Dispose();
+
+            // 3. Lưu đè và gán lại
+            imgBuffer.Save(path);
+            picHinhAnh.Image = imgBuffer;
+            MessageBox.Show("Đã xoay ảnh!");
+        }
+
+        private void dataGridView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (dataGridView.Columns[e.ColumnIndex].Name == "HinhAnh")
+            {
+                try
+                {
+                    // 2. Kiểm tra nếu giá trị ô không trống và là chuỗi
+                    if (e.Value != null && !string.IsNullOrWhiteSpace(e.Value.ToString()))
+                    {
+                        string fileName = e.Value.ToString();
+                        string fullPath = Path.Combine(imagesFolder, fileName);
+
+                        // 3. Kiểm tra file có tồn tại thật không trước khi đọc
+                        if (File.Exists(fullPath))
+                        {
+                            // Dùng MemoryStream để đọc ảnh (tránh lỗi khóa file "A generic error occurred in GDI+")
+                            byte[] bytes = File.ReadAllBytes(fullPath);
+                            using (MemoryStream ms = new MemoryStream(bytes))
+                            {
+                                Image img = Image.FromStream(ms);
+                                // Resize ảnh về 24x24 hoặc kích thước bạn muốn
+                                e.Value = new Bitmap(img, 24, 24);
+                            }
+                            e.FormattingApplied = true; // Xác nhận đã xử lý xong
+                        }
+                        else
+                        {
+                            e.Value = null; // Nếu không thấy file thì để trống ô
+                        }
+                    }
+                }
+                catch
+                {
+                    e.Value = null; // Nếu có bất kỳ lỗi gì phát sinh (file hỏng...) thì bỏ qua
+                }
+            }
+            }
         private Image LoadImage(string fileName)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(fileName))
-                    return null;
-
+                if (string.IsNullOrWhiteSpace(fileName)) return null;
                 string fullPath = Path.Combine(imagesFolder, fileName);
+                if (!File.Exists(fullPath)) return null;
 
-                if (!File.Exists(fullPath))
-                    return null;
-
+                // Đọc bytes rồi mới convert sang Image để không chiếm dụng file
                 byte[] bytes = File.ReadAllBytes(fullPath);
                 using (MemoryStream ms = new MemoryStream(bytes))
                 {
                     return Image.FromStream(ms);
                 }
             }
-            catch
-            {
-                return null;
-            }
-        }
-
-
-
-        private void dataGridView_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex < 0) return;
-
-            var row = dataGridView.Rows[e.RowIndex].DataBoundItem as DanhSachSanPham;
-            if (row == null) return;
-
-            var sp = context.SanPham.Find(row.ID);
-
-            if (sp != null)
-            {
-                picHinhAnh.Image = LoadImage(sp.HinhAnh);
-                picHinhAnh.SizeMode = PictureBoxSizeMode.Zoom;
-                picHinhAnh.Tag = sp.HinhAnh;
-            }
-        }
-
-        private void btnXoayanh_Click(object sender, EventArgs e)
-        {
-            if (picHinhAnh.Image == null)
-            {
-                MessageBox.Show("Chưa có ảnh để xoay!");
-                return;
-            }
-
-            picHinhAnh.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
-            picHinhAnh.Refresh();
-
-            string fileName = picHinhAnh.Tag?.ToString();
-            if (!string.IsNullOrEmpty(fileName))
-            {
-                string path = Path.Combine(imagesFolder, fileName);
-                picHinhAnh.Image.Save(path);
-            }
-
-            LoadDataGridView();
+            catch { return null; }
         }
     }
 }

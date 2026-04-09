@@ -206,129 +206,87 @@ namespace QuanLyBanHang.From
 
         private void btnXuat_Click(object sender, EventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Title = "Xuất dữ liệu ra tập tin Excel";
-            saveFileDialog.Filter = "Tập tin Excel|*.xls;*.xlsx";
-            saveFileDialog.FileName = "HoaDon_" + DateTime.Now.ToShortDateString().Replace("/", "_") + ".xlsx";
+            SaveFileDialog sfd = new SaveFileDialog
+            {
+                Filter = "Excel|*.xlsx",
+                FileName = "HoaDon_" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx"
+            };
 
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            if (sfd.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                    System.Data.DataTable table = new System.Data.DataTable();
-
-                    table.Columns.AddRange(new DataColumn[5] {
-                new DataColumn("ID", typeof(int)),
-                new DataColumn("NhanVienID", typeof(int)),
-                new DataColumn("KhachHangID", typeof(int)),
-                new DataColumn("NgayLap", typeof(DateTime)),
-                new DataColumn("GhiChuHoaDon", typeof(string))
-            });
-
-                    var hoaDon = context.HoaDon.ToList();
-
-                    if (hoaDon != null)
+                    using (var workbook = new XLWorkbook())
                     {
-                        foreach (var hd in hoaDon)
-                        {
-                            table.Rows.Add(
-                                hd.ID,
-                                hd.NhanVienID,
-                                hd.KhachHangID,
-                                hd.NgayLap,
-                                hd.GhiChuHoaDon
-                            );
-                        }
-                    }
+                        var worksheet = workbook.Worksheets.Add("HoaDon");
+                        // Lấy toàn bộ danh sách Hóa Đơn từ database
+                        var data = context.HoaDon.ToList();
 
-                    using (XLWorkbook wb = new XLWorkbook())
-                    {
-                        var sheet = wb.Worksheets.Add(table, "HoaDon");
-                        sheet.Columns().AdjustToContents();
+                        // Chèn trực tiếp vào Worksheet, bắt đầu từ ô A1
+                        worksheet.Cell(1, 1).InsertTable(data);
+                        worksheet.Columns().AdjustToContents(); // Tự căn chỉnh độ rộng cột
 
-                        wb.SaveAs(saveFileDialog.FileName);
-
-                        MessageBox.Show("Đã xuất dữ liệu ra Excel thành công.");
+                        workbook.SaveAs(sfd.FileName);
+                        MessageBox.Show("Xuất danh sách hóa đơn thành công!", "Thông báo");
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    MessageBox.Show("Lỗi khi xuất file: " + ex.Message);
                 }
             }
             }
 
         private void btnNhap_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Title = "Nhập dữ liệu từ tập tin Excel";
-            openFileDialog.Filter = "Tập tin Excel|*.xls;*.xlsx";
-            openFileDialog.Multiselect = false;
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "Excel Files|*.xlsx;*.xls",
+                Title = "Chọn file Excel Hóa Đơn"
+            };
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                    System.Data.DataTable table = new System.Data.DataTable();
-
                     using (XLWorkbook workbook = new XLWorkbook(openFileDialog.FileName))
                     {
-                        IXLWorksheet worksheet = workbook.Worksheet(1);
+                        var worksheet = workbook.Worksheet(1);
+                        // Sử dụng Skip(1) để bỏ qua dòng tiêu đề của Excel
+                        var rows = worksheet.RangeUsed().RowsUsed().Skip(1);
 
-                        bool firstRow = true;
-                        string readRange = "1:1";
-
-                        foreach (IXLRow row in worksheet.RowsUsed())
+                        foreach (var row in rows)
                         {
-                            if (firstRow)
-                            {
-                                readRange = string.Format("{0}:{1}", 1, row.LastCellUsed().Address.ColumnNumber);
+                            HoaDon hd = new HoaDon();
 
-                                foreach (IXLCell cell in row.Cells(readRange))
-                                    table.Columns.Add(cell.Value.ToString());
+                            // Lưu ý: Thứ tự cột phải khớp với file Excel bạn đã xuất ra
+                            // Cột 1 thường là ID (bỏ qua nếu DB tự tăng)
+                            // Cột 2: NhanVienID
+                            hd.NhanVienID = int.Parse(row.Cell(2).Value.ToString());
 
-                                firstRow = false;
-                            }
-                            else
-                            {
-                                table.Rows.Add();
-                                int cellIndex = 0;
+                            // Cột 3: KhachHangID
+                            hd.KhachHangID = int.Parse(row.Cell(3).Value.ToString());
 
-                                foreach (IXLCell cell in row.Cells(readRange))
-                                {
-                                    table.Rows[table.Rows.Count - 1][cellIndex] = cell.Value.ToString();
-                                    cellIndex++;
-                                }
-                            }
+                            // Cột 4: NgayLap
+                            string ngay = row.Cell(4).Value.ToString();
+                            hd.NgayLap = string.IsNullOrEmpty(ngay) ? DateTime.Now : DateTime.Parse(ngay);
+
+                            // Cột 5: GhiChuHoaDon
+                            hd.GhiChuHoaDon = row.Cell(5).Value.ToString();
+
+                            context.HoaDon.Add(hd);
                         }
 
-                        if (table.Rows.Count > 0)
-                        {
-                            foreach (DataRow r in table.Rows)
-                            {
-                                HoaDon hd = new HoaDon();
+                        context.SaveChanges();
+                        MessageBox.Show("Nhập dữ liệu hóa đơn thành công!", "Thông báo");
 
-                                hd.NhanVienID = Convert.ToInt32(r["NhanVienID"]);
-                                hd.KhachHangID = Convert.ToInt32(r["KhachHangID"]);
-                                hd.NgayLap = Convert.ToDateTime(r["NgayLap"]);
-                                hd.GhiChuHoaDon = r["GhiChuHoaDon"].ToString();
-
-                                context.HoaDon.Add(hd);
-                            }
-
-                            context.SaveChanges();
-
-                            MessageBox.Show("Đã nhập thành công " + table.Rows.Count + " dòng.");
-                            FrmHoaDon_Load(sender, e);
-                        }
-
-                        if (firstRow)
-                            MessageBox.Show("Tập tin Excel rỗng.");
+                        // Refresh lại DataGridView
+                        FrmHoaDon_Load(sender, e);
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    MessageBox.Show("Lỗi khi nhập dữ liệu: " + ex.Message);
                 }
             }
         }

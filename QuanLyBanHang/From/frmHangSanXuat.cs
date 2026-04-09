@@ -127,103 +127,76 @@ namespace QuanLyBanHang.From
 
         private void btnNhap_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Title = "Nhập dữ liệu từ tập tin Excel";
-            openFileDialog.Filter = "Tập tin Excel|*.xls;*.xlsx";
-            openFileDialog.Multiselect = false;
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "Excel Files|*.xlsx;*.xls",
+                Title = "Chọn file Excel Hãng Sản Xuất"
+            };
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                    DataTable table = new DataTable();
                     using (XLWorkbook workbook = new XLWorkbook(openFileDialog.FileName))
                     {
-                        IXLWorksheet worksheet = workbook.Worksheet(1);
-                        bool firstRow = true;
-                        string readRange = "1:1";
-                        foreach (IXLRow row in worksheet.RowsUsed())
-                        {
-                            // Đọc dòng tiêu đề (dòng đầu tiên) 
-                            if (firstRow)
-                            {
-                                readRange = string.Format("{0}:{1}", 1, row.LastCellUsed().Address.ColumnNumber);
-                                foreach (IXLCell cell in row.Cells(readRange))
-                                    table.Columns.Add(cell.Value.ToString());
-                                firstRow = false;
-                            }
-                            else // Đọc các dòng nội dung (các dòng tiếp theo) 
-                            {
-                                table.Rows.Add();
-                                int cellIndex = 0;
-                                foreach (IXLCell cell in row.Cells(readRange))
-                                {
-                                    table.Rows[table.Rows.Count - 1][cellIndex] = cell.Value.ToString();
-                                    cellIndex++;
-                                }
-                            }
-                        }
-                        if (table.Rows.Count > 0)
-                        {
-                            foreach (DataRow r in table.Rows)
-                            {
-                                HangSanXuat hsx = new HangSanXuat();
-                                hsx.TenHangSanXuat = r["TenHangSanXuat"].ToString();
-                                context.HangSanXuat.Add(hsx);
-                            }
-                            context.SaveChanges();
+                        var worksheet = workbook.Worksheet(1);
+                        // Skip(1) để bỏ qua dòng tiêu đề
+                        var rows = worksheet.RangeUsed().RowsUsed().Skip(1);
 
-                            MessageBox.Show("Đã nhập thành công " + table.Rows.Count + " dòng.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            frmHangSanXuat_Load(sender, e);
+                        foreach (var row in rows)
+                        {
+                            HangSanXuat hsx = new HangSanXuat();
+
+                            // Giả sử file Excel xuất ra có: Cột 1 là ID, Cột 2 là TenHangSanXuat
+                            // Chúng ta chỉ cần nhập Tên Hãng, ID sẽ tự tăng trong DB
+                            hsx.TenHangSanXuat = row.Cell(2).Value.ToString();
+
+                            context.HangSanXuat.Add(hsx);
                         }
-                        if (firstRow)
-                            MessageBox.Show("Tập tin Excel rỗng.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
+                        context.SaveChanges();
+                        MessageBox.Show("Nhập dữ liệu thành công!", "Thông báo");
+
+                        // Gọi lại hàm Load để cập nhật giao diện
+                        frmHangSanXuat_Load(sender, e);
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show("Lỗi khi nhập dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
         private void btnXuat_Click(object sender, EventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Title = "Xuất dữ liệu ra tập tin Excel";
-            saveFileDialog.Filter = "Tập tin Excel|*.xls;*.xlsx";
-            saveFileDialog.FileName = "HangSanXuat_" + DateTime.Now.ToShortDateString().Replace("/", "_") + ".xlsx";
+            SaveFileDialog sfd = new SaveFileDialog
+            {
+                Filter = "Excel|*.xlsx",
+                FileName = "HangSanXuat_" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx"
+            };
 
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            if (sfd.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                    DataTable table = new DataTable();
-
-                    table.Columns.AddRange(new DataColumn[2] {
-                new DataColumn("ID", typeof(int)),
-                new DataColumn("TenHangSanXuat", typeof(string))
-            });
-
-                    var hangSanXuat = context.HangSanXuat.ToList();
-                    if (hangSanXuat != null)
+                    using (var workbook = new XLWorkbook())
                     {
-                        foreach (var p in hangSanXuat)
-                            table.Rows.Add(p.ID, p.TenHangSanXuat);
-                    }
+                        var worksheet = workbook.Worksheets.Add("HangSanXuat");
+                        // Lấy toàn bộ danh sách Hãng Sản Xuất
+                        var data = context.HangSanXuat.ToList();
 
-                    using (XLWorkbook wb = new XLWorkbook())
-                    {
-                        var sheet = wb.Worksheets.Add(table, "HangSanXuat");
-                        sheet.Columns().AdjustToContents();
-                        wb.SaveAs(saveFileDialog.FileName);
+                        // Chèn bảng dữ liệu vào ô A1
+                        worksheet.Cell(1, 1).InsertTable(data);
+                        worksheet.Columns().AdjustToContents(); // Tự căn chỉnh độ rộng cột
 
-                        MessageBox.Show("Đã xuất dữ liệu ra tập tin Excel thành công.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        workbook.SaveAs(sfd.FileName);
+                        MessageBox.Show("Xuất Excel thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show("Lỗi: " + ex.Message);
                 }
             }
         }

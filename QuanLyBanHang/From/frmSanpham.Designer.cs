@@ -34,6 +34,7 @@
             DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
             grbTTsanpham = new GroupBox();
+            btnXoayanh = new Button();
             btnThem = new Button();
             btnXuat = new Button();
             btnNhap = new Button();
@@ -58,6 +59,7 @@
             cboHangSanXuat = new ComboBox();
             cboLoaiSanPham = new ComboBox();
             dataGridView = new DataGridView();
+            grbDSsanpham = new GroupBox();
             Phanloai = new DataGridViewTextBoxColumn();
             colID = new DataGridViewTextBoxColumn();
             Hangsanxuat = new DataGridViewTextBoxColumn();
@@ -65,8 +67,6 @@
             Soluong = new DataGridViewTextBoxColumn();
             Dongia = new DataGridViewTextBoxColumn();
             HinhAnh = new DataGridViewImageColumn();
-            grbDSsanpham = new GroupBox();
-            btnXoayanh = new Button();
             grbTTsanpham.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)picHinhAnh).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numDonGia).BeginInit();
@@ -110,6 +110,16 @@
             grbTTsanpham.TabIndex = 0;
             grbTTsanpham.TabStop = false;
             grbTTsanpham.Text = "Thông tin sản phảm";
+            // 
+            // btnXoayanh
+            // 
+            btnXoayanh.Location = new Point(976, 78);
+            btnXoayanh.Name = "btnXoayanh";
+            btnXoayanh.Size = new Size(94, 29);
+            btnXoayanh.TabIndex = 24;
+            btnXoayanh.Text = "Xoay ảnh";
+            btnXoayanh.UseVisualStyleBackColor = true;
+            btnXoayanh.Click += btnXoayanh_Click;
             // 
             // btnThem
             // 
@@ -358,6 +368,19 @@
             dataGridView.Size = new Size(1171, 483);
             dataGridView.TabIndex = 1;
             dataGridView.CellClick += dataGridView_CellClick;
+            dataGridView.CellFormatting += dataGridView_CellFormatting;
+            // 
+            // grbDSsanpham
+            // 
+            grbDSsanpham.Controls.Add(dataGridView);
+            grbDSsanpham.Location = new Point(15, 363);
+            grbDSsanpham.Margin = new Padding(3, 4, 3, 4);
+            grbDSsanpham.Name = "grbDSsanpham";
+            grbDSsanpham.Padding = new Padding(3, 4, 3, 4);
+            grbDSsanpham.Size = new Size(1177, 511);
+            grbDSsanpham.TabIndex = 2;
+            grbDSsanpham.TabStop = false;
+            grbDSsanpham.Text = "Danh sách sản phẩm";
             // 
             // Phanloai
             // 
@@ -419,31 +442,9 @@
             // 
             HinhAnh.DataPropertyName = "HinhAnh";
             HinhAnh.HeaderText = "Hình Ảnh";
-            HinhAnh.ImageLayout = DataGridViewImageCellLayout.Stretch;
+            HinhAnh.ImageLayout = DataGridViewImageCellLayout.Zoom;
             HinhAnh.MinimumWidth = 6;
             HinhAnh.Name = "HinhAnh";
-            // 
-            // grbDSsanpham
-            // 
-            grbDSsanpham.Controls.Add(dataGridView);
-            grbDSsanpham.Location = new Point(15, 363);
-            grbDSsanpham.Margin = new Padding(3, 4, 3, 4);
-            grbDSsanpham.Name = "grbDSsanpham";
-            grbDSsanpham.Padding = new Padding(3, 4, 3, 4);
-            grbDSsanpham.Size = new Size(1177, 511);
-            grbDSsanpham.TabIndex = 2;
-            grbDSsanpham.TabStop = false;
-            grbDSsanpham.Text = "Danh sách sản phẩm";
-            // 
-            // btnXoayanh
-            // 
-            btnXoayanh.Location = new Point(976, 78);
-            btnXoayanh.Name = "btnXoayanh";
-            btnXoayanh.Size = new Size(94, 29);
-            btnXoayanh.TabIndex = 24;
-            btnXoayanh.Text = "Xoay ảnh";
-            btnXoayanh.UseVisualStyleBackColor = true;
-            btnXoayanh.Click += btnXoayanh_Click;
             // 
             // Sản_phẩm
             // 
@@ -494,6 +495,7 @@
         private GroupBox grbDSsanpham;
         private Button btnXuat;
         private Button btnThem;
+        private Button btnXoayanh;
         private DataGridViewTextBoxColumn Phanloai;
         private DataGridViewTextBoxColumn colID;
         private DataGridViewTextBoxColumn Hangsanxuat;
@@ -501,6 +503,5 @@
         private DataGridViewTextBoxColumn Soluong;
         private DataGridViewTextBoxColumn Dongia;
         private DataGridViewImageColumn HinhAnh;
-        private Button btnXoayanh;
     }
 }
